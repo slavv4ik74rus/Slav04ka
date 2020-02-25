@@ -12,7 +12,7 @@ class User(object):
             self.root[i] = choice(arr)
 
     def showRoots(self):
-        k = 0
+        k = 1
         for i in self.root:
             print(str(k) + "){:10}".format(i + ":"), "{:10}".format(roots[self.root[i]]))
             k += 1
@@ -24,21 +24,36 @@ class User(object):
             self.root[filename] = self.root[filename] | newroot  # логическое сложение
 
     def giveRoot(self, filename, givenRoot):
-        hisname = input("Кому передается право "+givenRoot+" на "+filename)
+        hisname = input("Кому передается право " + givenRoot + " на " + filename)
         for currentName in usernames:
             if hisname == currentName.lower():
-                users[usernames[hisname]].root[filename] = users[usernames[hisname]].root[filename] | getKey(roots, givenRoot)
+                users[usernames[hisname]].root[filename] = users[usernames[hisname]].root[filename] | getKey(roots,
+                                                                                                             givenRoot)
 
     def useFile(self):
-        action = input("Выберите действие(Чтение,Запись,Передача прав): ")
-        file = int(input("Выберите файл - "))
-        file -= 1 if not file else 0
-        if self.root[objects[file]] == 111:
-            
-        elif getKey(roots, action) == self.root[objects[file]]:
+        while True:
+            action = input("Выберите действие(Чтение,Запись,Передача прав): ")
+            flag = False
+            for key in roots:
+                if roots[key] == action:
+                    flag = True
+            if not flag:
+                print("Ошибка действия с файлом,попробуйте еще раз.")
+                pass
+            else:
+                break
+        while True:
+            file = input("Выберите файл - ")
+            if file.isdigit():
+                if int(file) > len(objects):
+                    print("Неверно выбран файл.Попробуйте еще раз.")
+                    pass
+                else:
+                    break
+        if (getKey(roots, action) == self.root[objects[int(file)]]) or (self.root[objects[int(file)]] == 111):
             print("Успешно.")
         else:
-            print("У вас недостаточно прав для " + action + " над", objects[file])
+            print("У вас недостаточно прав для " + action + " над", objects[int(file)])
 
 
 usernames = {"Дарья": 0,
@@ -88,6 +103,8 @@ def susuTasks():  # рандом права и админку мне
         users[usernames[index]].stupidRandRoot()  # список объектов[получаем обычный индекс]
     for fileName in objects:  # админку мне
         users[usernames["Вячеслав"]].root[fileName] = 111
+        users[usernames["Полина"]].root[fileName] = 111
+
 
 def main():
     susuTasks()  # делаем ваши таски
@@ -104,10 +121,10 @@ def main():
                     elif command == "файлы":  # команда для работа с файлами
                         users[usernames[name.capitalize()]].useFile()
                         command = str(input(">")).lower()
-                    if command == "выход":  # выход из работы на аккаунтом
+                    if (command == "выход") or (command == "завершить"):  # выход из работы на аккаунтом
                         break
-                    if command == "завершить":  # полное завершение программы
-                        break
+                    else:
+                        pass
             else:
                 break
 
