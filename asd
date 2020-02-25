@@ -2,10 +2,14 @@ from random import randint, choice
 
 
 class User(object):
-    def __init__(self, filename="", newroot=0):
-        self.root = {"CD-ROM": 1, "Дисковод": 0, "Файл 1": 0, "Файл 2": 0}
-        if filename in self.root:
-            self.root[filename] = self.root[filename] | newroot
+    def __init__(self):  # конструктор
+        self.root = {"Файл 1": 0, "Файл 2": 0, "Файл 3": 0, "Файл 4": 0}
+
+    # Юзлесс метод
+    def stupidRandRoot(self):
+        arr = [i for i in roots]
+        for i in self.root:
+            self.root[i] = choice(arr)
 
     def showRoots(self):
         k = 0
@@ -14,16 +18,27 @@ class User(object):
             k += 1
         print(20 * "-")
 
-    def takeNewRoot(self, filename="", newroot=""):
-        newroot = getKey(roots, newroot)
-        if (filename in self.root) and newroot:
-            self.root[filename] = self.root[filename] | newroot
+    def takeNewRoot(self, filename="", newroot=""):  # принятие прав от другого пользователя
+        newroot = getKey(roots, newroot)  # переходим на бинарку для лог.сложения прав
+        if filename in self.root:  # проверяем нет ли ошибки в файле на который передают права
+            self.root[filename] = self.root[filename] | newroot  # логическое сложение
+
+    def giveRoot(self, filename, givenRoot):
+        hisname = input("Кому передается право "+givenRoot+" на "+filename)
+        for currentName in usernames:
+            if hisname == currentName.lower():
+                users[usernames[hisname]].root[filename] = users[usernames[hisname]].root[filename] | getKey(roots, givenRoot)
 
     def useFile(self):
-        action = input("Выберите действие")
-        file = int(input("Выберите файл -"))
-        if getKey(roots, action) == self.root[objects[file]]:
-            print("Прочитано")
+        action = input("Выберите действие(Чтение,Запись,Передача прав): ")
+        file = int(input("Выберите файл - "))
+        file -= 1 if not file else 0
+        if self.root[objects[file]] == 111:
+            
+        elif getKey(roots, action) == self.root[objects[file]]:
+            print("Успешно.")
+        else:
+            print("У вас недостаточно прав для " + action + " над", objects[file])
 
 
 usernames = {"Дарья": 0,
@@ -45,17 +60,17 @@ roots = {0: "Запрет",
          1001: "Чтение,Запись - Передача прав",
          111: "Полные права",
          }
-users = [User() for i in usernames]
-objects = ["CD-ROM", "Дисковод", "Файл 1", "Файл 2"]
+users = [User() for i in usernames]  # Сделать себе админку
+objects = ["Файл 1", "Файл 2", "Файл 3", "Файл 4"]
 
 
 def login(logName, count=0):  # Функция для логина,3 попытки на вход, если Ошибка входа - прекращение программы
     for currentName in usernames:
         if logName == currentName.lower():
-            print("Login successful.")
+            print("Вход успешно выполнен.")
             return True
     if count < 2:
-        logName = (str(input("Login Error.Try again.\nUsername:"))).lower()
+        logName = (str(input("Ошибка входа,попробуйте еще раз.\nИмя пользователя:"))).lower()
         login(logName, count + 1)
     else:
         print("Охрана за дверью.")
@@ -68,26 +83,35 @@ def getKey(dictionary, value):  # Возвращает ключ из слова�
             return item
 
 
+def susuTasks():  # рандом права и админку мне
+    for index in usernames:  # случайные права ребяткам
+        users[usernames[index]].stupidRandRoot()  # список объектов[получаем обычный индекс]
+    for fileName in objects:  # админку мне
+        users[usernames["Вячеслав"]].root[fileName] = 111
+
 def main():
-    while True:
-        command = (str(input(">>>"))).lower()
-        if command == "login":  # Команда для входа в систему
-            name = str(input("Username:")).lower()
+    susuTasks()  # делаем ваши таски
+    while True:  # для многократного использования программ
+        command = (str(input(">>>"))).lower()  # регистры не важны
+        if command == "вход":  # Команда для входа в систему
+            name = str(input("Имя пользователя:")).lower()
             if login(name):  # False - вход не удался.True - вход выполнен
                 command = (str(input(">>"))).lower()
-                while True:
-                    if command == "показать права":
+                while True:  # для многократного использования в управление аккаунта
+                    if command == "показать права":  # вывод на экран прав на опред.файл
                         users[usernames[name.capitalize()]].showRoots()
                         command = str(input(">")).lower()
-                    if command == "usefile":
+                    elif command == "файлы":  # команда для работа с файлами
                         users[usernames[name.capitalize()]].useFile()
                         command = str(input(">")).lower()
-                    """if command == "logout" or "exit":
-                        break"""
+                    if command == "выход":  # выход из работы на аккаунтом
+                        break
+                    if command == "завершить":  # полное завершение программы
+                        break
             else:
                 break
 
-        if command == "exit":  # Выход из программы
+        if command == "завершить":  # Выход из программы
             break
 
 
